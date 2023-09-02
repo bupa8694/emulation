@@ -6,7 +6,7 @@ on:
       - main  # Change this to your preferred branch
 
 jobs:
-  emulate:
+  build:
     runs-on: ubuntu-latest  # Use the latest version of Ubuntu
 
     steps:
