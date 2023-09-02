@@ -6,7 +6,7 @@ on:
       - main  # Change this to your preferred branch
 
 jobs:
-  build:
+  emulate:
     runs-on: ubuntu-latest  # Use the latest version of Ubuntu
 
     steps:
@@ -16,21 +16,19 @@ jobs:
     - name: Set up QEMU for ARM64
       run: |
         sudo apt-get update
-        sudo apt-get install -y qemu-system-aarch64
+        sudo apt-get install -y qemu-system-arm
+
     - name: Clone Poky Linux repository
-      run: git clone https://git.yoctoproject.org/poky
+      run: git clone https://git.yoctoproject.org/git/poky.git
       
     - name: Build Poky Linux
-      run: cd poky && ./oe-init-build-env
+      run: cd poky && source oe-init-build-env
       shell: bash
-    - name: Run Poky Linux emulator
-      run: qemu-system-aarch64 -kernel poky/build/tmp/deploy/images/linux/aarch64/zImage
 
-   # - name: Emulate ARM64 Poky Linux
-    #  run: |
-        # Launch QEMU with the Poky Linux image
-     #   qemu-system-aarch64 -machine virt -cpu cortex-a57 -m 2048 -smp 2 -drive file=poky-linux.qcow2,format=qcow2 -nographic
-   - name: Install GCC and G++ on Emulated ARM64 Poky Linux
-    run: |
-     opkg update  # Update the package list
-     opkg install gcc g++
+    - name: Run Poky Linux emulator
+      run: qemu-system-aarch64 -kernel poky/build/tmp/deploy/images/qemuarm64/core-image-minimal-qemuarm64.bin
+
+    - name: Install GCC and G++ on Emulated ARM64 Poky Linux
+      run: |
+        opkg update  # Update the package list
+        opkg install gcc g++
