@@ -1,0 +1,48 @@
+# Emulate Minimal Poky Linux AARCH64 Environment (Headless)
+#
+# This GitHub Actions workflow emulates a minimal Poky Linux AARCH64 environment using QEMU in headless mode.
+# It builds a minimal Poky Linux image and runs it in the emulator.
+
+name: Emulate Minimal Poky Linux AARCH64 Environment (Headless)
+
+on:
+  push:
+    branches:
+      - main  # Change this to your preferred branch
+
+jobs:
+  emulate:
+    runs-on: ubuntu-latest  # Use the latest version of Ubuntu
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Install Required Build Tools
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y chrpath diffstat
+
+    - name: Set up QEMU for ARM64
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y qemu-system-aarch64
+
+    - name: Clone Poky Linux repository
+      run: git clone https://git.yoctoproject.org/git/poky.git
+      
+    - name: Build Minimal Poky Linux AARCH64 Image
+      run: |
+        cd poky
+        source oe-init-build-env
+        bitbake core-image-minimal  # Build the minimal image
+      shell: bash
+
+    - name: Run Minimal Poky Linux AARCH64 Emulator (Headless)
+      run: |
+        qemu-system-aarch64 -machine virt -cpu cortex-a53 -m 2048 -smp 2 -kernel tmp/deploy/images/qemuarm64/Image -append "root=/dev/vda rw console=ttyAMA0" -drive file=tmp/deploy/images/qemuarm64/core-image-minimal-qemuarm64.ext4,if=none,id=drive0 -device virtio-blk-device,drive=drive0 -nographic
+
+    - name: Install Development Tools
+      run: |
+        opkg update  # Update the package list
+        opkg install gcc g++ clang llvm-dev
