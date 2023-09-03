@@ -13,10 +13,17 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v2
 
-    - name: Install Required Build Tools
+    #- name: Install Required Build Tools
       #run: |
         #sudo apt-get update
         #sudo apt-get install -y chrpath diffstat
+         #Common targets are:
+          #core-image-minimal
+          #core-image-full-cmdline
+          #core-image-sato
+          #core-image-weston
+          #meta-toolchain
+          #meta-ide-support
 
     - name: Set up QEMU for ARM64
       run: |
@@ -31,14 +38,6 @@ jobs:
         cd poky
         source oe-init-build-env
         bitbake core-image-minimal  # Adjust the image name to a minimal image like core-image-minimal
-         #Common targets are:
-          #core-image-minimal
-          #core-image-full-cmdline
-          #core-image-sato
-          #core-image-weston
-          #meta-toolchain
-          #meta-ide-support
-
       shell: bash
 
     - name: Run Minimal Poky Linux AARCH64 Emulator
