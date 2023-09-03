@@ -1,7 +1,7 @@
-# Emulate Minimal Poky Linux AARCH64 Environment (Headless)
+# Emulate Minimal Poky Linux AARCH64 Environment (Headless) with Cleanup
 #
 # This GitHub Actions workflow emulates a minimal Poky Linux AARCH64 environment using QEMU in headless mode.
-# It builds a minimal Poky Linux image and runs it in the emulator.
+# It cleans up temporary build files for specified image recipes that exist, builds a minimal Poky Linux image, and runs it in the emulator.
 #
 # Common targets are:
 #   - core-image-minimal
@@ -11,7 +11,7 @@
 #   - meta-toolchain
 #   - meta-ide-support
 
-name: Emulate Minimal Poky Linux AARCH64 Environment (Headless)
+name: Emulate Minimal Poky Linux AARCH64 Environment (Headless) with Cleanup
 
 on:
   push:
@@ -25,6 +25,21 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
+
+    - name: Clean Up Temporary Build Files
+      run: |
+        # List of image recipes to clean up
+        image_recipes=("core-image-minimal" "core-image-full-cmdline" "core-image-sato" "core-image-weston" "meta-toolchain" "meta-ide-support")
+
+        for image_recipe in "${image_recipes[@]}"; do
+          # Check if the image recipe exists before cleaning up
+          if [ -e "build/conf/auto.conf" ]; then
+            if grep -q "^IMAGE_INSTALL_append = .*$image_recipe.*" "build/conf/auto.conf"; then
+              bitbake -c cleanall $image_recipe
+            fi
+          fi
+        done
+      shell: bash
 
     - name: Install Required Build Tools
       run: |
@@ -53,4 +68,4 @@ jobs:
     - name: Install Development Tools
       run: |
         opkg update  # Update the package list
-        opkg install gcc g++ gdb clang llvm-dev
+        opkg install gcc g++ clang llvm-dev
