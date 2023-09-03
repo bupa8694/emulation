@@ -1,4 +1,4 @@
-name: Emulate Full Poky Linux AARCH64 Environment
+name: Emulate Minimal Poky Linux AARCH64 Environment
 
 on:
   push:
@@ -14,9 +14,9 @@ jobs:
       uses: actions/checkout@v2
 
     - name: Install Required Build Tools
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y chrpath diffstat
+      #run: |
+        #sudo apt-get update
+        #sudo apt-get install -y chrpath diffstat
 
     - name: Set up QEMU for ARM64
       run: |
@@ -26,18 +26,26 @@ jobs:
     - name: Clone Poky Linux repository
       run: git clone https://git.yoctoproject.org/git/poky.git
       
-    - name: Build Full Poky Linux AARCH64 Image
+    - name: Build Minimal Poky Linux AARCH64 Image
       run: |
         cd poky
         source oe-init-build-env
-        bitbake core-image-full-cmdline  # Adjust the image name to a full image like core-image-full-cmdline
+        bitbake core-image-minimal  # Adjust the image name to a minimal image like core-image-minimal
+         #Common targets are:
+          #core-image-minimal
+          #core-image-full-cmdline
+          #core-image-sato
+          #core-image-weston
+          #meta-toolchain
+          #meta-ide-support
+
       shell: bash
 
-    - name: Run Full Poky Linux AARCH64 Emulator
+    - name: Run Minimal Poky Linux AARCH64 Emulator
       run: |
-        qemu-system-aarch64 -machine virt -cpu cortex-a57 -m 2048 -smp 2 -kernel tmp/deploy/images/qemuarm64/Image -append "root=/dev/vda rw console=ttyAMA0" -drive file=tmp/deploy/images/qemuarm64/core-image-full-cmdline-qemuarm64.ext4,if=none,id=drive0 -device virtio-blk-device,drive=drive0
+        qemu-system-aarch64 -machine virt -cpu cortex-a57 -m 2048 -smp 2 -kernel tmp/deploy/images/qemuarm64/Image -append "root=/dev/vda rw console=ttyAMA0" -drive file=tmp/deploy/images/qemuarm64/core-image-minimal-qemuarm64.ext4,if=none,id=drive0 -device virtio-blk-device,drive=drive0 -nographic
 
-    - name: Install GCC and G++ on Emulated Full Poky Linux AARCH64
+    - name: Install GCC and G++ on Emulated Minimal Poky Linux AARCH64
       run: |
         opkg update  # Update the package list
         opkg install gcc g++
