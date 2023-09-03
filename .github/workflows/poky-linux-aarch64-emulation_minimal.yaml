@@ -53,4 +53,4 @@ jobs:
     - name: Install Development Tools
       run: |
         opkg update  # Update the package list
-        opkg install gcc g++ clang llvm-dev
+        opkg install gcc g++ gdb clang llvm-dev
