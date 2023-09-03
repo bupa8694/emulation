@@ -2,6 +2,14 @@
 #
 # This GitHub Actions workflow emulates a minimal Poky Linux AARCH64 environment using QEMU in headless mode.
 # It builds a minimal Poky Linux image and runs it in the emulator.
+#
+# Common targets are:
+#   - core-image-minimal
+#   - core-image-full-cmdline
+#   - core-image-sato
+#   - core-image-weston
+#   - meta-toolchain
+#   - meta-ide-support
 
 name: Emulate Minimal Poky Linux AARCH64 Environment (Headless)
 
