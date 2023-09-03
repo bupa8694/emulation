@@ -1,4 +1,17 @@
-name: Emulate Minimal Poky Linux AARCH64 Environment
+# Emulate Full Poky Linux AARCH64 Environment (Headless)
+#
+# This GitHub Actions workflow emulates a full Poky Linux AARCH64 environment using QEMU in headless mode.
+# It builds a specified Poky Linux image and runs it in the emulator.
+#
+# Common targets are:
+#   - core-image-minimal
+#   - core-image-full-cmdline
+#   - core-image-sato
+#   - core-image-weston
+#   - meta-toolchain
+#   - meta-ide-support
+
+name: Emulate Full Poky Linux AARCH64 Environment (Headless)
 
 on:
   push:
@@ -13,17 +26,10 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v2
 
-    #- name: Install Required Build Tools
-      #run: |
-        #sudo apt-get update
-        #sudo apt-get install -y chrpath diffstat
-         #Common targets are:
-          #core-image-minimal
-          #core-image-full-cmdline
-          #core-image-sato
-          #core-image-weston
-          #meta-toolchain
-          #meta-ide-support
+    - name: Install Required Build Tools
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y chrpath diffstat
 
     - name: Set up QEMU for ARM64
       run: |
@@ -33,18 +39,22 @@ jobs:
     - name: Clone Poky Linux repository
       run: git clone https://git.yoctoproject.org/git/poky.git
       
-    - name: Build Minimal Poky Linux AARCH64 Image
+    - name: Build Full Poky Linux AARCH64 Image
       run: |
         cd poky
         source oe-init-build-env
-        bitbake core-image-minimal  # Adjust the image name to a minimal image like core-image-minimal
+        bitbake core-image-full-cmdline  # Adjust the image name to a full image like core-image-full-cmdline
       shell: bash
 
-    - name: Run Minimal Poky Linux AARCH64 Emulator
+    - name: Run Full Poky Linux AARCH64 Emulator (Headless)
       run: |
-        qemu-system-aarch64 -machine virt -cpu cortex-a57 -m 2048 -smp 2 -kernel tmp/deploy/images/qemuarm64/Image -append "root=/dev/vda rw console=ttyAMA0" -drive file=tmp/deploy/images/qemuarm64/core-image-minimal-qemuarm64.ext4,if=none,id=drive0 -device virtio-blk-device,drive=drive0 -nographic
+        qemu-system-aarch64 -machine virt -cpu cortex-a53 -m 2048 -smp 2 -kernel tmp/deploy/images/qemuarm64/Image -append "root=/dev/vda rw console=ttyAMA0" -drive file=tmp/deploy/images/qemuarm64/core-image-full-cmdline-qemuarm64.ext4,if=none,id=drive0 -device virtio-blk-device,drive=drive0 -nographic
 
-    - name: Install GCC and G++ on Emulated Minimal Poky Linux AARCH64
+    - name: Install GCC and G++ on Emulated Full Poky Linux AARCH64
       run: |
         opkg update  # Update the package list
         opkg install gcc g++
+
+    - name: Install Clang and LLVM Tools
+      run: |
+        opkg install clang llvm
